@@ -51,10 +51,27 @@ jobs:
 
 
     - name: Replace
+      env:
+        PCL_BUILD_MS_CLIENT_ID: ${{ secrets.CLIENT_ID }}
+        PCL_BUILD_CURSEFORGE_API_KEY: ${{ secrets.CURSEFORGE_API_KEY }}
+        PCL_BUILD_COMMIT: ${{ github.sha }}
       run: |
-        (gc "Plain Craft Launcher 2\Modules\ModSecret.vb") -replace 'Public OAuthClientId As String = If(Environment.GetEnvironmentVariable("PCL_MS_CLIENT_ID"), "")', 'Public OAuthClientId As String = If(Environment.GetEnvironmentVariable("PCL_MS_CLIENT_ID"), "${{ secrets.CLIENT_ID }}")' | Out-File "Plain Craft Launcher 2\Modules\ModSecret.vb"
-        (gc "Plain Craft Launcher 2\Modules\ModSecret.vb") -replace 'Public CurseForgeAPIKey As String = If(Environment.GetEnvironmentVariable("PCL_CURSEFORGE_API_KEY"), "")', 'Public CurseForgeAPIKey As String = If(Environment.GetEnvironmentVariable("PCL_CURSEFORGE_API_KEY"), "${{ secrets.CURSEFORGE_API_KEY }}")' | Out-File "Plain Craft Launcher 2\Modules\ModSecret.vb"
-        (gc "Plain Craft Launcher 2\Modules\Base\ModBase.vb") -replace 'Public Const CommitHash As String = ""', 'Public Const CommitHash As String = "${{ github.sha }}"' | Out-File "Plain Craft Launcher 2\Modules\Base\ModBase.vb"
+        $path = "Plain Craft Launcher 2\Modules\ModSecret.vb"
+        $source = [IO.File]::ReadAllText($path)
+        if (-not [string]::IsNullOrWhiteSpace($env:PCL_BUILD_MS_CLIENT_ID)) {
+          if ($env:PCL_BUILD_MS_CLIENT_ID -notmatch '^(?:[0-9a-fA-F]{16}|[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$') {
+            throw "CLIENT_ID must be a public OAuth application identifier"
+          }
+          $source = [regex]::Replace($source, 'Public Const DefaultOAuthClientId As String = "[^"]*"', ('Public Const DefaultOAuthClientId As String = "' + $env:PCL_BUILD_MS_CLIENT_ID + '"'))
+        }
+        if (-not [string]::IsNullOrWhiteSpace($env:PCL_BUILD_CURSEFORGE_API_KEY)) {
+          $key = $env:PCL_BUILD_CURSEFORGE_API_KEY.Replace('"', '""')
+          $source = $source.Replace('If(Environment.GetEnvironmentVariable("PCL_CURSEFORGE_API_KEY"), "")', ('If(Environment.GetEnvironmentVariable("PCL_CURSEFORGE_API_KEY"), "' + $key + '")'))
+        }
+        [IO.File]::WriteAllText($path, $source)
+        $path = "Plain Craft Launcher 2\Modules\Base\ModBase.vb"
+        $source = [IO.File]::ReadAllText($path).Replace('Public Const CommitHash As String = ""', ('Public Const CommitHash As String = "' + $env:PCL_BUILD_COMMIT + '"'))
+        [IO.File]::WriteAllText($path, $source)
         
     - name: Restore NuGet Packages
       run: dotnet restore PCLCS\PCLCS.csproj

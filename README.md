@@ -22,7 +22,11 @@ dotnet restore PCLCS/PCLCS.csproj
 msbuild "Plain Craft Launcher 2/Plain Craft Launcher 2.vbproj" -p:Configuration=Release
 ```
 
-上游公开源码通过 `PCL_MS_CLIENT_ID`、`PCL_CURSEFORGE_API_KEY` 环境变量读取微软登录与 CurseForge 所需的配置；本仓库不包含这些凭据。GitHub Actions 沿用上游的 `CLIENT_ID`、`CURSEFORGE_API_KEY` 仓库机密配置方式。
+微软登录默认使用官方 PCL 2.99.0.0 的公开 OAuth Client ID。Client ID 是公开应用标识，不是客户端密钥或用户令牌；克隆本仓库后直接构建即可包含该默认配置，无需另外填写。维护者可用 `PCL_MS_CLIENT_ID` 运行时环境变量，或 GitHub Actions 的 `CLIENT_ID` 仓库配置覆盖它。该应用仍由原维护者控制，其后续变更可能影响登录。
+
+已用默认 Client ID 请求微软设备码接口，接口成功签发登录码；这只验证登录流程第一步，未验证用户完成授权后的 Xbox、Minecraft 服务访问和游戏启动。
+
+CurseForge API Key 不属于公开应用标识，本仓库不包含它。需要使用 CurseForge 时，维护者须自行配置 `PCL_CURSEFORGE_API_KEY` 环境变量或 GitHub Actions 的 `CURSEFORGE_API_KEY` 仓库机密。此限制与微软登录无关。
 公开源码版本的账号与设置存储沿用上游 `PCLDebug` 隔离规则，与官方发行版不完全相同。
 
 ---
