@@ -26,7 +26,7 @@ msbuild "Plain Craft Launcher 2/Plain Craft Launcher 2.vbproj" -p:Configuration=
 
 已用源码构建的 EXE 验证微软设备码接口；用户手动完成授权后，日志确认 Xbox、Minecraft 认证及登录成功，界面显示正版账号和头像。Minecraft 版本列表也已实际加载。完整游戏安装与启动尚未验证。
 
-推荐下载 [v2.99.0.0-fix.2](https://github.com/IMAX9D/PCL-fix/releases/tag/v2.99.0.0-fix.2)：其 EXE 直接来自本仓库源码的 Release 构建，附有 SHA-256 校验文件。
+推荐下载 [v2.99.0.0-fix](https://github.com/IMAX9D/PCL-fix/releases/tag/v2.99.0.0-fix)：其 EXE 直接来自本仓库源码的 Release 构建，附有 SHA-256 校验文件。
 
 CurseForge API Key 不属于公开应用标识，本仓库不包含它。需要使用 CurseForge 时，维护者须自行配置 `PCL_CURSEFORGE_API_KEY` 环境变量或 GitHub Actions 的 `CURSEFORGE_API_KEY` 仓库机密。此限制与微软登录无关。
 公开源码版本的账号与设置存储沿用上游 `PCLDebug` 隔离规则，与官方发行版不完全相同。
